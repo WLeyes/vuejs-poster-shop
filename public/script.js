@@ -7,11 +7,13 @@ new Vue ({
       { title: 'Item 2' },
       { title: 'Item 3' },
       { title: 'Item 4' },
-    ]
+    ],
+    cart: []
   },
   methods: {
-    addItem: function() {
+    addItem: function(index) {
       this.total += 9.99;
+      this.cart.push(this.items[index]);
     }
   }
 });
