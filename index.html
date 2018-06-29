@@ -17,12 +17,15 @@
 <div id="app">
     <div class="header">
         <h1>Vue.js Poster Store</h1>
+        <form class="searchbar" v-on:submit.prevent="onSubmit">
+            <input class="btn" type="submit" value="Search">
+        </form>
     </div>
     <div class="main">
         <div class="products">
             <div class="product" v-for="(item, index) in items">
                 <h4 class="product-title">{{ item.title }}</h4>
-                <button class="add-to-cart" @click="addItem(index)">Add to cart</button>
+                <button class="add-to-cart btn" @click="addItem(index)">Add to cart</button>
             </div>
         </div>
         <div class="cart">
@@ -31,6 +34,8 @@
                 <li class="cart-item" v-for="item in cart">
                     <div class="item-title">{{ item.title }}</div>
                     <span class="item-qty">{{ item.price | currency }} x {{ item.qty }}</span>
+                    <button class="btn" @click="inc(item)">+</button>
+                    <button class="btn"@click="dec(item)">-</button>
                 </li>
             </ul>
             <div v-if="cart.length">
