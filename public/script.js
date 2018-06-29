@@ -1,22 +1,30 @@
+let PRICE = 9.99;
+
 new Vue ({
   el: '#app',
   data: {
     total: 0,
-    items: [
-      { id: 1, title: 'Item 1', price: 9.99 },
-      { id: 2, title: 'Item 2', price: 19.99  },
-      { id: 3, title: 'Item 3', price: 9.99  },
-      { id: 4, title: 'Item 4', price: 49.97  },
-    ],
-    cart: []
+    items: [],
+    cart: [],
+    newSearch: 'Pugs',
+    lastSearch: '',
+    loading: false,
+    price: PRICE
   },
   methods: {
     onSubmit: function(){
-      console.log('Submitted search');
-      
+      this.items = [];
+      this.loading = true;
+      this.$http
+        .get(`/search/${this.newSearch}`)
+        .then(function(response){
+          this.lastSearch = this.newSearch;
+          this.items = response.data;
+          this.loading = false;
+        });
     },
     addItem: function(index) {
-      this.total += this.items[index].price;
+      this.total += PRICE;
       let item = this.items[index];
       let found = false;
       for(let i = 0; i < this.cart.length; i++){
@@ -30,7 +38,7 @@ new Vue ({
         this.cart.push({
           id: item.id,
           title: item.title,
-          price: item.price,
+          price: PRICE,
           qty: 1
         });
       }
@@ -56,5 +64,9 @@ new Vue ({
     currency: function(price) {
       return '$'.concat(price.toFixed(2));
     }
-  }
+  },
+  mounted: function() {
+    this.onSubmit();
+    this.newSearch = '';
+  },
 });
