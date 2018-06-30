@@ -1,4 +1,5 @@
-let PRICE = 9.99;
+const PRICE = 9.99;
+const LOAD_NUM = 10;
 
 new Vue ({
   el: '#app',
@@ -6,22 +7,53 @@ new Vue ({
     total: 0,
     items: [],
     cart: [],
+    results: [],
     newSearch: 'Pugs',
     lastSearch: '',
     loading: false,
     price: PRICE
   },
+  filters: {
+    currency: function(price) {
+      return '$'.concat(price.toFixed(2));
+    }
+  },
+  computed: {
+    noMoreItems: function() {
+      return this.items.length === this.results.length && this.results.length > 0
+    }
+  },
+  mounted: function() {
+    this.onSubmit();
+    this.newSearch = '';
+
+    const vueInstance = this;
+    const elem = document.getElementById('product-list-bottom');
+    const watcher = scrollMonitor.create(elem);
+    watcher.enterViewport(function() {
+      vueInstance.appendItems();
+    });
+  },
   methods: {
+    appendItems: function() {
+      if(this.items.length < this.results.length) {
+        let append = this.results.slice(this.items.length, this.items.length + LOAD_NUM);
+        this.items = this.items.concat(append);
+      }
+    },
     onSubmit: function(){
-      this.items = [];
-      this.loading = true;
-      this.$http
-        .get(`/search/${this.newSearch}`)
-        .then(function(response){
-          this.lastSearch = this.newSearch;
-          this.items = response.data;
-          this.loading = false;
-        });
+      if(this.newSearch.length) {
+        this.items = [];
+        this.loading = true;
+        this.$http
+          .get(`/search/${this.newSearch}`)
+          .then(function(response){
+            this.lastSearch = this.newSearch;
+            this.results  = response.data;
+            this.appendItems();
+            this.loading = false;
+          });
+      }
     },
     addItem: function(index) {
       this.total += PRICE;
@@ -59,14 +91,5 @@ new Vue ({
         }
       }
     }
-  },
-  filters: {
-    currency: function(price) {
-      return '$'.concat(price.toFixed(2));
-    }
-  },
-  mounted: function() {
-    this.onSubmit();
-    this.newSearch = '';
   },
 });
